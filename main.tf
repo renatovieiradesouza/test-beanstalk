@@ -104,16 +104,11 @@ resource "aws_elastic_beanstalk_application" "app" {
 
 # Ambiente - modo SingleInstance (sem Load Balancer)
 resource "aws_elastic_beanstalk_environment" "env" {
-  name                = "${var.app_name}-env"
+  name                = "${var.app_name}-env-2"
   application         = aws_elastic_beanstalk_application.app.name
   solution_stack_name = "64bit Amazon Linux 2023 v6.6.0 running Node.js 18"
   version_label = aws_elastic_beanstalk_application_version.app_version.name
 
-  setting {
-    namespace = "aws:autoscaling:launchconfiguration"
-    name      = "IamInstanceProfile"
-    value     = aws_iam_instance_profile.beanstalk_ec2_profile.name
-  }
 
   setting {
     namespace = "aws:elasticbeanstalk:environment"
@@ -161,6 +156,12 @@ resource "aws_elastic_beanstalk_environment" "env" {
     name      = "LETSENCRYPT_EMAIL"
     value     = var.email
   }  
+
+setting {
+  namespace = "aws:autoscaling:launchconfiguration"
+  name      = "IamInstanceProfile"
+  value     = aws_iam_instance_profile.beanstalk_ec2_profile.name
+}  
 }
 
 
@@ -175,6 +176,13 @@ resource "aws_security_group" "beanstalk_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }  
 
   egress {
     from_port   = 0
