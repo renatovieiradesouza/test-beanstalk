@@ -1,3 +1,49 @@
+terraform {
+  required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+  }
+}
+
+# 1) Empacota a pasta `app/` num ZIP local
+data "archive_file" "app_bundle" {
+  type        = "zip"
+  source_dir  = "${path.module}/app"
+  output_path = "${path.module}/app.zip"
+}
+
+# 2) Gera sufixo único pra evitar colisão de bucket
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
+# 3) Bucket pra armazenar seu bundle de código
+resource "aws_s3_bucket" "code_bucket" {
+  bucket = "${var.app_name}-code-${random_id.suffix.hex}"
+  acl    = "private"
+}
+
+# 4) Faz upload do ZIP pro bucket
+resource "aws_s3_bucket_object" "app_zip" {
+  bucket = aws_s3_bucket.code_bucket.id
+  key    = "${var.app_name}-${timestamp()}.zip"
+  source = data.archive_file.app_bundle.output_path
+  etag   = filemd5(data.archive_file.app_bundle.output_path)
+}
+
+# 5) Cria uma Application Version apontando para o ZIP
+resource "aws_elastic_beanstalk_application_version" "app_version" {
+  name        = "v-${timestamp()}"
+  application = aws_elastic_beanstalk_application.app.name
+  bucket      = aws_s3_bucket.code_bucket.id
+  key         = aws_s3_bucket_object.app_zip.key
+
+  # garante que o bucket_object esteja pronto antes
+  depends_on = [aws_s3_bucket_object.app_zip]
+}
+
 provider "aws" {
   region = var.aws_region
 }
@@ -61,6 +107,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   name                = "${var.app_name}-env"
   application         = aws_elastic_beanstalk_application.app.name
   solution_stack_name = "64bit Amazon Linux 2023 v6.6.0 running Node.js 18"
+  version_label = aws_elastic_beanstalk_application_version.app_version.name
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
@@ -103,6 +150,17 @@ resource "aws_elastic_beanstalk_environment" "env" {
     name      = "SecurityGroups"
     value     = aws_security_group.beanstalk_sg.id
   }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "LETSENCRYPT_DOMAIN"
+    value     = var.domain
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "LETSENCRYPT_EMAIL"
+    value     = var.email
+  }  
 }
 
 
@@ -144,4 +202,15 @@ variable "subnet_ids" {
   type        = list(string)
   # Substitua pelos seus IDs reais de subnets públicas
   default     = ["subnet-098263c71a8b36414", "subnet-0430d0b8249ed4f1d"]
+}
+
+
+variable "domain" { 
+  type = string 
+  default = "bingoprovider.com"
+}
+
+variable "email"  { 
+  type = string 
+  default = "renatovieiradesouza1@gmail.com"
 }

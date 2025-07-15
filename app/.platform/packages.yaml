@@ -1,0 +1,5 @@
+# .platform/packages.yaml
+yum:
+  certbot: []
+  python3-certbot-nginx: []
+
