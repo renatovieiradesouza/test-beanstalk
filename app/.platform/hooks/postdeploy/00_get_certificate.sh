@@ -14,3 +14,5 @@ yum clean all
 
 #!/usr/bin/env bash
 sudo certbot -n -d girus.bingoprovider.com --nginx --agree-tos --email renatovieiradesouza1@gmail.com
+
+# Create a cronjob
