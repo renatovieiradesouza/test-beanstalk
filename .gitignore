@@ -1,3 +1,69 @@
+# Java
+*.class
+*.log
+*.ctxt
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+build/
+
+# IDEs / Editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+bin/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives / Artifacts (don’t commit build outputs)
+*.zip
+*.tar
+*.tar.gz
+*.gz
+*.jar
+*.war
+ebpkg/ROOT.war
+war/target/
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Env / secrets (if any used locally)
+.env
+.env.*
+
+# Temp logs/extractions
+var/
+logs/
+logs-*/
+BundleLogs*.zip
 # Created by https://www.toptal.com/developers/gitignore/api/terraform
 # Edit at https://www.toptal.com/developers/gitignore?templates=terraform
 
