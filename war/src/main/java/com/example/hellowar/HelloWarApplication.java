@@ -13,7 +13,11 @@ public class HelloWarApplication extends SpringBootServletInitializer {
 
     @GetMapping("/")
     public String hello() {
-        return "Hello World from WAR WORLD CUP FANTASY FINALS";
+        String devPassword = System.getenv("devPassword");
+        if (devPassword == null || devPassword.isBlank()) {
+            devPassword = "(not set)";
+        }
+        return "Env recuperada ddo parameter store | devPassword=" + devPassword;
     }
 
     @Override
