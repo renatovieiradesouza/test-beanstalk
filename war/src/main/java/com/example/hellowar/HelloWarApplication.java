@@ -17,7 +17,7 @@ public class HelloWarApplication extends SpringBootServletInitializer {
         if (devPassword == null || devPassword.isBlank()) {
             devPassword = "(not set)";
         }
-        return "Env recuperada ddo parameter store | devPassword=" + devPassword;
+        return "Env recuperada ddo parameter store 4 | devPassword=" + devPassword;
     }
 
     @Override
